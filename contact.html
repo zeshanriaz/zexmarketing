@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact Us — ZexMarketing</title>
+  <meta name="description" content="Get in touch with ZexMarketing to request a free SEO audit or ask about our content writing and marketing services." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container navbar">
+      <a href="index.html" class="brand">
+        <span class="brand-mark">Z</span>
+        <span>ZexMarketing</span>
+      </a>
+      <button class="menu-toggle" aria-label="Toggle navigation" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-menu">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About</a></li>
+        <li class="has-dropdown">
+          <a href="#">Services ▾</a>
+          <ul class="dropdown">
+            <li><a href="services/seo.html">SEO</a></li>
+            <li><a href="services/content-writing.html">Content Writing</a></li>
+            <li><a href="services/content-marketing.html">Content Marketing</a></li>
+          </ul>
+        </li>
+        <li><a href="contact.html" class="active">Contact</a></li>
+        <li><a href="contact.html" class="nav-cta">Get a Free Audit</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <main>
+    <section class="page-header">
+      <div class="container">
+        <div class="breadcrumbs">
+          <a href="index.html">Home</a><span class="sep">/</span><span>Contact</span>
+        </div>
+        <span class="eyebrow">Let's Talk</span>
+        <h1>Tell us about your project</h1>
+        <p>Share a few details and a senior strategist will reply within one business day with next steps — or a polite "we're not the right fit."</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="contact-grid">
+          <aside class="contact-info-card">
+            <h3>Get in touch</h3>
+            <p>Prefer email or phone? Reach us directly — or use the form and we'll route your request to the right specialist.</p>
+            <ul class="contact-info-list">
+              <li>
+                <div class="ci-icon">✉️</div>
+                <div><strong>Email</strong><a href="mailto:hello@zexmarketing.com">hello@zexmarketing.com</a></div>
+              </li>
+              <li>
+                <div class="ci-icon">📞</div>
+                <div><strong>Phone</strong><a href="tel:+15551234567">+1 (555) 123-4567</a></div>
+              </li>
+              <li>
+                <div class="ci-icon">📍</div>
+                <div><strong>Office</strong><span>2100 Market St, Suite 402<br />San Francisco, CA 94114</span></div>
+              </li>
+              <li>
+                <div class="ci-icon">🕘</div>
+                <div><strong>Hours</strong><span>Mon–Fri, 9am–6pm PT</span></div>
+              </li>
+            </ul>
+            <div class="social-row" aria-label="Social media">
+              <a href="#" aria-label="LinkedIn">in</a>
+              <a href="#" aria-label="Twitter / X">𝕏</a>
+              <a href="#" aria-label="Facebook">f</a>
+              <a href="#" aria-label="Instagram">ig</a>
+            </div>
+          </aside>
+
+          <div class="form-card">
+            <form id="contactForm" novalidate>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="name">Full name *</label>
+                  <input type="text" id="name" name="name" required placeholder="Jane Doe" />
+                </div>
+                <div class="form-group">
+                  <label for="email">Work email *</label>
+                  <input type="email" id="email" name="email" required placeholder="jane@company.com" />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="company">Company</label>
+                  <input type="text" id="company" name="company" placeholder="Acme Inc." />
+                </div>
+                <div class="form-group">
+                  <label for="website">Website</label>
+                  <input type="url" id="website" name="website" placeholder="https://example.com" />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="service">Service of interest</label>
+                  <select id="service" name="service">
+                    <option value="seo">SEO</option>
+                    <option value="content-writing">Content Writing</option>
+                    <option value="content-marketing">Content Marketing</option>
+                    <option value="full-stack">Full-stack Growth</option>
+                    <option value="other">Other / Not sure</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="budget">Monthly budget</label>
+                  <select id="budget" name="budget">
+                    <option value="<3k">Under $3,000</option>
+                    <option value="3-7k">$3,000 – $7,000</option>
+                    <option value="7-15k">$7,000 – $15,000</option>
+                    <option value="15k+">$15,000+</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="message">How can we help? *</label>
+                <textarea id="message" name="message" required placeholder="A few sentences about your goals, timeline, and anything you've already tried."></textarea>
+              </div>
+              <button type="submit" class="btn btn-primary" style="width: 100%;">Send Message</button>
+              <div class="form-notice" role="status" aria-live="polite"></div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-alt">
+      <div class="container">
+        <div class="section-head">
+          <span class="eyebrow">FAQ</span>
+          <h2>Before you reach out</h2>
+        </div>
+        <div class="faq">
+          <div class="faq-item open">
+            <button class="faq-question">What happens after I submit the form?<span class="icon">+</span></button>
+            <div class="faq-answer"><p>A senior strategist reviews your submission, takes a quick look at your site and top competitors, and replies within one business day with an honest read on whether we can help — and what's next.</p></div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-question">Is the initial consultation really free?<span class="icon">+</span></button>
+            <div class="faq-answer"><p>Yes. We'll spend 30 minutes understanding your business, review your current state, and share two to three opportunities — no obligation to work together.</p></div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-question">Do you work with clients outside the US?<span class="icon">+</span></button>
+            <div class="faq-answer"><p>Absolutely. Our team works across North America, Europe, and APAC. We'll align on a communication schedule that fits your timezone.</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="index.html" class="brand">
+            <span class="brand-mark">Z</span>
+            <span>ZexMarketing</span>
+          </a>
+          <p>A results-driven SEO, content, and growth marketing partner for ambitious brands.</p>
+        </div>
+        <div>
+          <h5>Company</h5>
+          <ul class="footer-links">
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li><a href="privacy.html">Privacy Policy</a></li>
+          </ul>
+        </div>
+        <div>
+          <h5>Services</h5>
+          <ul class="footer-links">
+            <li><a href="services/seo.html">SEO</a></li>
+            <li><a href="services/content-writing.html">Content Writing</a></li>
+            <li><a href="services/content-marketing.html">Content Marketing</a></li>
+          </ul>
+        </div>
+        <div>
+          <h5>Newsletter</h5>
+          <p>Monthly SEO playbooks and case studies. No spam.</p>
+          <form class="footer-newsletter" novalidate>
+            <input type="email" name="email" placeholder="you@email.com" aria-label="Email address" required />
+            <button type="submit">Subscribe</button>
+          </form>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© <span data-year></span> ZexMarketing. All rights reserved.</span>
+        <span>
+          <a href="privacy.html">Privacy</a>
+          <a href="contact.html">Contact</a>
+        </span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/script.js"></script>
+</body>
+</html>
