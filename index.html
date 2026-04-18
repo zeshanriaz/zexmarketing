@@ -57,22 +57,59 @@
           </div>
         </div>
         <div class="hero-visual">
-          <div class="hero-card">
-            <h4>Organic Traffic Growth <span class="pill">+284%</span></h4>
-            <div class="chart-bars">
-              <div class="bar" style="height: 28%" data-label="Jan"></div>
-              <div class="bar" style="height: 42%" data-label="Feb"></div>
-              <div class="bar" style="height: 38%" data-label="Mar"></div>
-              <div class="bar" style="height: 55%" data-label="Apr"></div>
-              <div class="bar" style="height: 68%" data-label="May"></div>
-              <div class="bar" style="height: 82%" data-label="Jun"></div>
-              <div class="bar" style="height: 95%" data-label="Jul"></div>
+          <div class="hero-form-card">
+            <div class="hero-form-head">
+              <span class="pill pill-accent">Free Consultation</span>
+              <h3>Get a custom growth plan</h3>
+              <p>Tell us about your business and a senior strategist will reply within one business day.</p>
             </div>
-            <ul class="keyword-list">
-              <li><span>"best crm software"</span><span class="rank">#3 ↑</span></li>
-              <li><span>"project management tool"</span><span class="rank">#5 ↑</span></li>
-              <li><span>"content marketing agency"</span><span class="rank">#2 ↑</span></li>
-            </ul>
+            <form id="contactForm" class="hero-form" novalidate>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="hf-name">Name *</label>
+                  <input type="text" id="hf-name" name="name" required placeholder="Your full name" />
+                </div>
+                <div class="form-group">
+                  <label for="hf-phone">Phone *</label>
+                  <input type="tel" id="hf-phone" name="phone" required placeholder="+1 (555) 123-4567" />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="hf-email">Email *</label>
+                  <input type="email" id="hf-email" name="email" required placeholder="you@company.com" />
+                </div>
+                <div class="form-group">
+                  <label for="hf-website">Website URL</label>
+                  <input type="url" id="hf-website" name="website" placeholder="https://example.com" />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="hf-service">Service Needed</label>
+                  <select id="hf-service" name="service">
+                    <option value="seo">SEO</option>
+                    <option value="content-writing">Content Writing</option>
+                    <option value="content-marketing">Content Marketing</option>
+                    <option value="full-stack">Full-stack Growth</option>
+                    <option value="other">Not sure yet</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="hf-budget">Monthly Budget</label>
+                  <select id="hf-budget" name="budget">
+                    <option value="<3k">Under $3,000</option>
+                    <option value="3-7k">$3,000 – $7,000</option>
+                    <option value="7-15k">$7,000 – $15,000</option>
+                    <option value="15k+">$15,000+</option>
+                  </select>
+                </div>
+              </div>
+              <input type="hidden" name="message" value="Hero quick-contact lead." />
+              <button type="submit" class="btn btn-primary" style="width: 100%;">Request My Free Plan</button>
+              <div class="form-notice" role="status" aria-live="polite"></div>
+              <p class="hero-form-note">We respect your privacy. Your details are never shared.</p>
+            </form>
           </div>
         </div>
       </div>

@@ -334,6 +334,79 @@ p { margin-bottom: 1rem; }
   position: relative;
 }
 
+/* ===== Hero Quick Contact Form ===== */
+.hero-form-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--gray-200);
+  padding: 1.75rem;
+  position: relative;
+}
+
+.hero-form-card::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: var(--radius-lg);
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.35), rgba(245, 158, 11, 0.25));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  pointer-events: none;
+}
+
+.hero-form-head {
+  margin-bottom: 1.25rem;
+}
+
+.hero-form-head h3 {
+  margin: 0.6rem 0 0.35rem;
+  font-size: 1.35rem;
+}
+
+.hero-form-head p {
+  font-size: 0.92rem;
+  color: var(--gray-600);
+  margin-bottom: 0;
+}
+
+.pill-accent {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent-dark);
+  background: rgba(245, 158, 11, 0.12);
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+}
+
+.hero-form .form-group {
+  margin-bottom: 0.85rem;
+}
+
+.hero-form .form-group label {
+  font-size: 0.82rem;
+  margin-bottom: 0.3rem;
+}
+
+.hero-form .form-group input,
+.hero-form .form-group select {
+  padding: 0.6rem 0.75rem;
+  font-size: 0.9rem;
+}
+
+.hero-form-note {
+  text-align: center;
+  font-size: 0.78rem;
+  color: var(--gray-500);
+  margin-top: 0.85rem;
+  margin-bottom: 0;
+}
+
 .hero-card {
   background: var(--white);
   border-radius: var(--radius-lg);

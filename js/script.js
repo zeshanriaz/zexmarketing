@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Contact form handling
+  // Contact form handling (works for the hero quick form and the full contact page form)
   const form = document.getElementById('contactForm');
   if (form) {
     const notice = form.querySelector('.form-notice');
@@ -34,16 +34,28 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = new FormData(form);
       const name = (data.get('name') || '').toString().trim();
       const email = (data.get('email') || '').toString().trim();
+      const phoneField = form.querySelector('[name="phone"]');
+      const phone = (data.get('phone') || '').toString().trim();
+      const messageField = form.querySelector('textarea[name="message"]');
       const message = (data.get('message') || '').toString().trim();
       const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      const phoneRequired = phoneField && phoneField.required;
+      const phoneOk = !phoneRequired || /^[+()\-\s\d]{7,}$/.test(phone);
+      const messageRequired = messageField && messageField.required;
+      const messageOk = !messageRequired || message.length > 0;
 
-      if (!name || !emailOk || !message) {
+      if (!name || !emailOk || !phoneOk || !messageOk) {
         notice.className = 'form-notice error';
-        notice.textContent = 'Please provide your name, a valid email, and a message.';
+        const missing = [];
+        if (!name) missing.push('name');
+        if (!emailOk) missing.push('a valid email');
+        if (!phoneOk) missing.push('a valid phone');
+        if (!messageOk) missing.push('a message');
+        notice.textContent = `Please provide ${missing.join(', ')}.`;
         return;
       }
       notice.className = 'form-notice success';
-      notice.textContent = `Thanks, ${name.split(' ')[0]}! Your message has been received. We'll reply within one business day.`;
+      notice.textContent = `Thanks, ${name.split(' ')[0]}! Your request has been received. A senior strategist will reply within one business day.`;
       form.reset();
     });
   }
