@@ -1,0 +1,13 @@
+{
+  "name": "ZexWheel: Spin the Wheel",
+  "short_name": "ZexWheel",
+  "description": "Random name picker wheel with weighted entries, teams, and results history.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0f0d18",
+  "theme_color": "#6d28d9",
+  "icons": [
+    { "src": "img/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

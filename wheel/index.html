@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="auto">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Wheel Spinner: Spin the Wheel to Pick a Random Name | ZexWheel</title>
+  <meta name="description" content="Free wheel spinner. Enter names, spin the wheel, and pick a random winner. Weighted entries, team generator, results history, share links, and offline support." />
+  <meta name="theme-color" content="#6d28d9" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="ZexWheel: Free Random Name Picker Wheel" />
+  <meta property="og:description" content="Enter names, spin the wheel, pick a winner. Weighted entries, teams, history, and share links." />
+  <meta property="og:image" content="img/og.svg" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="icon" href="img/icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="img/icon.svg" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "ZexWheel",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Any",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "description": "Free wheel spinner to pick a random name, winner, or decision."
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      { "@type": "Question", "name": "Is the wheel spinner random?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. ZexWheel picks the winner with the browser's cryptographic random number generator (crypto.getRandomValues) before the animation starts. The wheel then lands on that entry." } },
+      { "@type": "Question", "name": "How do I give one entry more chances?", "acceptedAnswer": { "@type": "Answer", "text": "Add an asterisk and a number after the name. Example: Alice*3 gives Alice three times the chance and a slice three times as wide." } },
+      { "@type": "Question", "name": "Where are my wheels stored?", "acceptedAnswer": { "@type": "Answer", "text": "In your own browser. Nothing goes to a server. Use the Share button to send a wheel to someone else as a link." } },
+      { "@type": "Question", "name": "Does it work offline?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. After the first visit the app works offline and you can install it to your home screen." } }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#entries">Skip to entries</a>
+
+  <header class="topbar">
+    <a class="brand" href="./" aria-label="ZexWheel home">
+      <img src="img/icon.svg" alt="" width="32" height="32" />
+      <span>ZexWheel</span>
+    </a>
+    <nav class="toolbar" aria-label="Wheel actions">
+      <button class="btn ghost" data-action="new" title="New wheel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>New</span></button>
+      <button class="btn ghost" data-action="open" title="Open saved wheel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h6l2 2h10v10H3z"/></svg><span>Open</span></button>
+      <button class="btn ghost" data-action="save" title="Save wheel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h11l3 3v15H5zM8 3v6h8V3M8 21v-7h8v7"/></svg><span>Save</span></button>
+      <button class="btn ghost" data-action="share" title="Share wheel"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.2 11l7.6-4M8.2 13l7.6 4"/></svg><span>Share</span></button>
+      <button class="btn ghost" data-action="fullscreen" title="Fullscreen (F)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><span>Fullscreen</span></button>
+      <button class="btn ghost" data-action="settings" title="Settings"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg><span>Settings</span></button>
+      <button class="btn ghost icon-only" data-action="theme" title="Toggle dark mode" aria-label="Toggle dark mode"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 13A9 9 0 1 1 11 3a7 7 0 0 0 10 10z"/></svg></button>
+    </nav>
+  </header>
+
+  <main class="app">
+    <section class="stage" aria-label="Wheel">
+      <input id="wheelTitle" class="wheel-title" type="text" maxlength="80" value="" placeholder="Name your wheel" aria-label="Wheel title" />
+      <div class="wheel-wrap" id="wheelWrap">
+        <canvas id="wheel" role="img" aria-label="Spinning wheel. Click to spin."></canvas>
+        <svg class="pointer" id="pointer" viewBox="0 0 60 50" aria-hidden="true">
+          <path d="M4 25 L52 6 Q58 25 52 44 Z" />
+        </svg>
+        <button class="spin-btn" id="spinBtn" aria-label="Spin the wheel">SPIN</button>
+      </div>
+      <p class="hint">Click the wheel, flick it, or press <kbd>Ctrl</kbd>+<kbd>Enter</kbd> to spin</p>
+      <p class="sr-only" aria-live="assertive" id="liveRegion"></p>
+    </section>
+
+    <aside class="panel">
+      <div class="tabs" role="tablist">
+        <button role="tab" aria-selected="true" aria-controls="tab-entries" id="t-entries" class="tab active">Entries <span class="badge" id="entryCount">0</span></button>
+        <button role="tab" aria-selected="false" aria-controls="tab-results" id="t-results" class="tab">Results <span class="badge" id="resultCount">0</span></button>
+        <button role="tab" aria-selected="false" aria-controls="tab-teams" id="t-teams" class="tab">Teams</button>
+      </div>
+
+      <div class="tab-panel" id="tab-entries" role="tabpanel" aria-labelledby="t-entries">
+        <div class="mini-toolbar">
+          <button class="chip" data-action="shuffle">Shuffle</button>
+          <button class="chip" data-action="sort">Sort</button>
+          <button class="chip" data-action="dedupe">Remove duplicates</button>
+          <button class="chip" data-action="import">Import</button>
+          <button class="chip" data-action="export">Export</button>
+          <button class="chip danger" data-action="clear">Clear</button>
+        </div>
+        <label for="entries" class="sr-only">Entries, one per line</label>
+        <textarea id="entries" spellcheck="false" autocomplete="off" placeholder="One entry per line&#10;Add *3 to give triple odds, e.g. Alice*3"></textarea>
+        <p class="note">One entry per line. Add <code>*2</code>, <code>*5</code>, etc. to weight an entry. Emojis work.</p>
+        <input type="file" id="importFile" accept=".txt,.csv,text/plain,text/csv" hidden />
+      </div>
+
+      <div class="tab-panel" id="tab-results" role="tabpanel" aria-labelledby="t-results" hidden>
+        <div class="mini-toolbar">
+          <button class="chip" data-action="copy-results">Copy</button>
+          <button class="chip" data-action="export-results">Download CSV</button>
+          <button class="chip danger" data-action="clear-results">Clear</button>
+        </div>
+        <h3 class="subhead">Tally</h3>
+        <ol class="tally" id="tally"></ol>
+        <h3 class="subhead">History</h3>
+        <ol class="history" id="history"></ol>
+        <p class="empty" id="resultsEmpty">No spins yet. Winners appear here.</p>
+      </div>
+
+      <div class="tab-panel" id="tab-teams" role="tabpanel" aria-labelledby="t-teams" hidden>
+        <p class="note">Split your entries into random teams. Weights are ignored.</p>
+        <div class="row">
+          <label for="teamCount">Teams</label>
+          <input id="teamCount" type="number" min="2" max="50" value="2" />
+          <button class="btn primary" data-action="make-teams">Generate</button>
+          <button class="chip" data-action="copy-teams">Copy</button>
+        </div>
+        <div class="teams" id="teams"></div>
+      </div>
+    </aside>
+  </main>
+
+  <section class="content" aria-labelledby="about-h">
+    <h2 id="about-h">A free wheel spinner with more control</h2>
+    <div class="features">
+      <article><h3>Fair picks</h3><p>The winner comes from your browser's cryptographic random generator before the wheel moves. The animation shows the result. It never decides it.</p></article>
+      <article><h3>Weighted entries</h3><p>Type <code>Alice*3</code> to give Alice three times the odds. Her slice grows to match.</p></article>
+      <article><h3>Teams in one click</h3><p>Split 30 students into 5 groups in under a second. Copy the result straight into chat.</p></article>
+      <article><h3>Results history</h3><p>Every spin logs with a time stamp and a tally. Export it to CSV for raffles and audits.</p></article>
+      <article><h3>Share links</h3><p>Send a wheel as a link. No account and no server. The list lives inside the URL.</p></article>
+      <article><h3>Works offline</h3><p>Install it to your phone or desktop. It runs with no internet after the first load.</p></article>
+    </div>
+
+    <h2>How to use it</h2>
+    <ol class="steps">
+      <li>Type or paste your entries in the box, one per line.</li>
+      <li>Click the wheel or press <kbd>Ctrl</kbd>+<kbd>Enter</kbd>.</li>
+      <li>Remove the winner, spin again, or keep going.</li>
+      <li>Save the wheel or share it with a link.</li>
+    </ol>
+
+    <h2>FAQ</h2>
+    <details><summary>Is the wheel spinner random?</summary><p>Yes. ZexWheel uses <code>crypto.getRandomValues</code> to pick the winner, then lands the wheel on that slice at a random spot inside it.</p></details>
+    <details><summary>How do I give one entry more chances?</summary><p>Add an asterisk and a number after the name. <code>Bob*2</code> gets twice the odds of an entry with no weight.</p></details>
+    <details><summary>Where are my wheels stored?</summary><p>In your own browser storage. Nothing leaves your device unless you share a link.</p></details>
+    <details><summary>Does it work offline?</summary><p>Yes. After one visit the app caches itself. Use your browser's Install option to add it to your home screen.</p></details>
+    <details><summary>What keyboard shortcuts exist?</summary><p><kbd>Ctrl</kbd>+<kbd>Enter</kbd> spins. <kbd>Space</kbd> spins when the text box is not focused. <kbd>F</kbd> toggles fullscreen. <kbd>Esc</kbd> closes pop ups.</p></details>
+  </section>
+
+  <footer class="footer">
+    <p>&copy; <span id="year"></span> ZexWheel. Your data stays in your browser.</p>
+  </footer>
+
+  <!-- Winner dialog -->
+  <dialog id="winnerDialog" class="dialog winner">
+    <div class="winner-bar" id="winnerBar"></div>
+    <p class="winner-label">We have a winner!</p>
+    <p class="winner-name" id="winnerName"></p>
+    <div class="dialog-actions">
+      <button class="btn" data-action="winner-close">Close</button>
+      <button class="btn" data-action="winner-remove">Remove</button>
+      <button class="btn primary" data-action="winner-again">Spin again</button>
+    </div>
+  </dialog>
+
+  <!-- Settings dialog -->
+  <dialog id="settingsDialog" class="dialog">
+    <form method="dialog" class="settings" id="settingsForm">
+      <h2>Settings</h2>
+      <label class="field">
+        <span>Spin time <output id="durationOut">6s</output></span>
+        <input type="range" name="duration" min="2" max="20" step="1" value="6" />
+      </label>
+      <label class="field">
+        <span>Color palette</span>
+        <select name="palette" id="paletteSelect"></select>
+      </label>
+      <label class="field">
+        <span>Volume <output id="volumeOut">60%</output></span>
+        <input type="range" name="volume" min="0" max="100" step="5" value="60" />
+      </label>
+      <label class="check"><input type="checkbox" name="sound" checked /> Tick and win sounds</label>
+      <label class="check"><input type="checkbox" name="confetti" checked /> Confetti on win</label>
+      <label class="check"><input type="checkbox" name="speak" /> Read the winner aloud</label>
+      <label class="check"><input type="checkbox" name="showDialog" checked /> Show winner pop up</label>
+      <label class="check"><input type="checkbox" name="autoRemove" /> Remove winner after each spin (elimination mode)</label>
+      <label class="check"><input type="checkbox" name="idle" checked /> Slow rotation when idle</label>
+      <div class="field">
+        <span>Center image</span>
+        <div class="row">
+          <button type="button" class="chip" data-action="pick-image">Upload image</button>
+          <button type="button" class="chip danger" data-action="clear-image">Remove image</button>
+        </div>
+        <input type="file" id="imageFile" accept="image/*" hidden />
+      </div>
+      <div class="dialog-actions">
+        <button class="btn primary" value="close">Done</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Open dialog -->
+  <dialog id="openDialog" class="dialog">
+    <h2>Saved wheels</h2>
+    <ul class="saved-list" id="savedList"></ul>
+    <p class="empty" id="savedEmpty">No saved wheels yet. Click Save to keep this one.</p>
+    <div class="dialog-actions">
+      <button class="btn" data-action="close-dialog">Close</button>
+    </div>
+  </dialog>
+
+  <!-- Share dialog -->
+  <dialog id="shareDialog" class="dialog">
+    <h2>Share this wheel</h2>
+    <p class="note">Anyone with this link opens a copy of your wheel. The entries live inside the link.</p>
+    <div class="row">
+      <input id="shareUrl" type="text" readonly aria-label="Share link" />
+      <button class="btn primary" data-action="copy-share">Copy</button>
+    </div>
+    <div class="dialog-actions">
+      <button class="btn" data-action="close-dialog">Close</button>
+    </div>
+  </dialog>
+
+  <canvas id="confetti" aria-hidden="true"></canvas>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="js/app.js" defer></script>
+</body>
+</html>
