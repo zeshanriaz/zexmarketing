@@ -9,11 +9,16 @@ importScripts('shared/leads-core.js');
 const Core = self.ZexCore;
 
 const QUEUE_KEY = 'emailQueue';
-const CONCURRENCY = 3;
-const FETCH_TIMEOUT_MS = 12000;
+const CONCURRENCY = 6; // websites checked at the same time
+const PAGE_TIMEOUT_MS = 6000; // one page
+const SITE_BUDGET_MS = 15000; // all static pages of one site
 const MAX_EXTRA_PAGES = 5;
-const MAX_HTML_CHARS = 3000000;
+const MAX_HTML_BYTES = 1500000;
 const FALLBACK_PATHS = ['/contact', '/contact-us', '/about', '/about-us'];
+const RENDER_SLOTS = 2; // minimized windows open at the same time
+const RENDER_MAX_MS = 10000;
+const RENDER_SETTLE_MS = 2500; // wait after load when no email shows up
+const DOMAIN_CACHE_SIZE = 500;
 
 const active = new Set();
 let queueLock = Promise.resolve();
@@ -80,10 +85,17 @@ async function processItem(item) {
   });
 }
 
-async function fetchPage(url) {
+// Returns { url, status, html } for any HTTP response (html is '' on errors),
+// or null when the site is unreachable or too slow.
+async function fetchPage(url, siteSignal) {
   if (/\.(pdf|jpe?g|png|gif|zip|mp4)(\?|$)/i.test(url)) return null;
   const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), FETCH_TIMEOUT_MS);
+  const abort = () => ctrl.abort();
+  const timer = setTimeout(abort, PAGE_TIMEOUT_MS);
+  if (siteSignal) {
+    if (siteSignal.aborted) return null;
+    siteSignal.addEventListener('abort', abort, { once: true });
+  }
   try {
     const res = await fetch(url, {
       signal: ctrl.signal,
@@ -91,65 +103,88 @@ async function fetchPage(url) {
       credentials: 'omit',
       headers: { Accept: 'text/html,application/xhtml+xml;q=0.9,*/*;q=0.8' },
     });
-    if (!res.ok) return null;
+    const page = { url: res.url || url, status: res.status, html: '' };
     const type = res.headers.get('content-type') || '';
-    if (type && !/html|text|xml/i.test(type)) return null;
-    let html = await res.text();
-    if (html.length > MAX_HTML_CHARS) html = html.slice(0, MAX_HTML_CHARS);
-    return { url: res.url || url, html };
+    if (!res.ok || (type && !/html|text|xml/i.test(type)) || !res.body) {
+      res.body && res.body.cancel().catch(() => {});
+      return page;
+    }
+    // Stream the body and stop at the size cap.
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let bytes = 0;
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      bytes += value.length;
+      page.html += decoder.decode(value, { stream: true });
+      if (bytes >= MAX_HTML_BYTES) {
+        reader.cancel().catch(() => {});
+        break;
+      }
+    }
+    return page;
   } catch (e) {
     return null;
   } finally {
     clearTimeout(timer);
+    if (siteSignal) siteSignal.removeEventListener('abort', abort);
   }
 }
 
 // ---------- JavaScript-rendered sites ----------
 
-let renderChain = Promise.resolve();
+let renderFree = RENDER_SLOTS;
+const renderWaiters = [];
 
-// One rendered page at a time, in a minimized window that closes itself.
-function renderPage(url) {
-  const run = renderChain.then(() => renderPageNow(url));
-  renderChain = run.catch(() => {});
-  return run;
+async function renderPage(url) {
+  if (renderFree > 0) renderFree--;
+  else await new Promise((r) => renderWaiters.push(r));
+  try {
+    return await renderPageNow(url);
+  } finally {
+    const next = renderWaiters.shift();
+    if (next) next();
+    else renderFree++;
+  }
 }
 
-function waitForTabComplete(tabId, timeoutMs) {
-  return new Promise((resolve) => {
-    let done = false;
-    const finish = () => {
-      if (done) return;
-      done = true;
-      chrome.tabs.onUpdated.removeListener(onUpdated);
-      clearTimeout(timer);
-      resolve();
-    };
-    const onUpdated = (id, info) => {
-      if (id === tabId && info.status === 'complete') finish();
-    };
-    const timer = setTimeout(finish, timeoutMs);
-    chrome.tabs.onUpdated.addListener(onUpdated);
-    chrome.tabs.get(tabId).then(
-      (tab) => tab && tab.status === 'complete' && finish(),
-      () => finish(),
-    );
-  });
+async function snapshot(tabId) {
+  try {
+    const [res] = await chrome.scripting.executeScript({
+      target: { tabId },
+      func: () => ({ url: location.href, html: document.documentElement.outerHTML }),
+    });
+    return res && res.result ? res.result : null;
+  } catch (e) {
+    return null; // page still navigating
+  }
 }
 
+// Opens the page in a minimized window and returns its HTML as soon as an
+// email shows up, or a moment after the page finishes loading.
 async function renderPageNow(url) {
   let win = null;
   try {
     win = await chrome.windows.create({ url, focused: false, state: 'minimized' });
     const tab = win.tabs && win.tabs[0];
     if (!tab) return null;
-    await waitForTabComplete(tab.id, 15000);
-    await sleep(2500); // let client-side frameworks render
-    const [res] = await chrome.scripting.executeScript({
-      target: { tabId: tab.id },
-      func: () => ({ url: location.href, html: document.documentElement.outerHTML }),
-    });
-    return res && res.result ? res.result : null;
+    const deadline = Date.now() + RENDER_MAX_MS;
+    let last = null;
+    let loadedAt = 0;
+    while (Date.now() < deadline) {
+      await sleep(600);
+      const info = await chrome.tabs.get(tab.id).catch(() => null);
+      if (!info) break;
+      if (info.status === 'complete' && !loadedAt) loadedAt = Date.now();
+      const snap = await snapshot(tab.id);
+      if (snap) {
+        last = snap;
+        if (Core.extractEmails(snap.html).length) break;
+      }
+      if (loadedAt && Date.now() - loadedAt >= RENDER_SETTLE_MS) break;
+    }
+    return last;
   } catch (e) {
     return null;
   } finally {
@@ -159,24 +194,36 @@ async function renderPageNow(url) {
 
 // ---------- crawler ----------
 
+// Businesses on one domain (chain locations) share a single crawl.
+const domainCache = new Map();
+
 async function crawlWebsite(rawUrl, deep) {
   const start = Core.normalizeWebsite(rawUrl);
   if (!start) return { emails: [], bestEmail: '', socials: {}, error: 'Invalid website URL' };
-
   const host = Core.hostOf(start);
 
   // Some businesses list a social profile as their website. Those pages need a login to read.
   const social = Core.extractSocialLinks('<a href="' + start.replace(/"/g, '%22') + '">');
-  const socialKey = Object.keys(social)[0];
-  if (socialKey || /(^|\.)(facebook|instagram|linktr|yelp)\.[a-z.]+$/.test(host)) {
+  if (Object.keys(social).length || /(^|\.)(facebook|instagram|linktr|yelp)\.[a-z.]+$/.test(host)) {
     return { emails: [], bestEmail: '', socials: social, error: '' };
   }
+
+  const cacheKey = Core.rootDomain(host) + (deep ? '|deep' : '');
+  if (!domainCache.has(cacheKey)) {
+    if (domainCache.size >= DOMAIN_CACHE_SIZE) domainCache.delete(domainCache.keys().next().value);
+    domainCache.set(cacheKey, crawlSite(start, host, deep));
+  }
+  const result = await domainCache.get(cacheKey);
+  return Object.assign({}, result, { emails: result.emails.slice(), socials: Object.assign({}, result.socials) });
+}
+
+async function crawlSite(start, host, deep) {
   const found = new Map();
   const socials = {};
-  const visited = new Set();
   let loadedAny = false;
 
   const addPage = (page) => {
+    if (!page || !page.html) return;
     loadedAny = true;
     for (const e of Core.extractEmails(page.html)) {
       const prev = found.get(e.email);
@@ -191,58 +238,66 @@ async function crawlWebsite(rawUrl, deep) {
   };
   const hasDomainEmail = () => Array.from(found.keys()).some((e) => Core.sameSite(e.split('@')[1], host));
 
-  let home = await fetchPage(start);
-  if (!home && start.startsWith('https://')) home = await fetchPage('http://' + start.slice(8));
+  const site = new AbortController();
+  const budget = setTimeout(() => site.abort(), SITE_BUDGET_MS);
+  try {
+    let home = await fetchPage(start, site.signal);
+    if (!home && start.startsWith('https://')) home = await fetchPage('http://' + start.slice(8), site.signal);
 
-  let candidates = [];
-  if (home) {
-    visited.add(home.url);
-    visited.add(start);
+    // Unreachable or hanging site: rendering would fail too, so stop here.
+    if (!home) return finish();
     addPage(home);
-    candidates = Core.findContactLinks(home.html, home.url);
-  }
-  const base = home ? home.url : start;
-  for (const p of FALLBACK_PATHS) {
-    try {
-      candidates.push(new URL(p, base).href);
-    } catch (e) {
-      /* ignore */
-    }
-  }
 
-  let extra = 0;
-  for (const url of candidates) {
-    if (hasDomainEmail() || extra >= MAX_EXTRA_PAGES) break;
-    if (visited.has(url)) continue;
-    visited.add(url);
-    extra++;
-    const page = await fetchPage(url);
-    if (page) addPage(page);
+    if (home.html && !hasDomainEmail()) {
+      const visited = new Set([start, home.url]);
+      const urls = [];
+      const push = (u) => {
+        if (u && !visited.has(u) && urls.length < MAX_EXTRA_PAGES) {
+          visited.add(u);
+          urls.push(u);
+        }
+      };
+      const links = Core.findContactLinks(home.html, home.url, 3);
+      links.forEach(push);
+      if (links.length < 2) {
+        for (const p of FALLBACK_PATHS) {
+          try {
+            push(new URL(p, home.url).href);
+          } catch (e) {
+            /* ignore */
+          }
+        }
+      }
+      // Fetch all candidate pages at once. Stop the rest when one shows a domain email.
+      await Promise.all(
+        urls.map((u) =>
+          fetchPage(u, site.signal).then((page) => {
+            addPage(page);
+            if (hasDomainEmail()) site.abort();
+          }),
+        ),
+      );
+    }
+  } finally {
+    clearTimeout(budget);
   }
 
   // Sites built with JavaScript frameworks only show emails after rendering.
   // Rendering opens a minimized window, so only do it when nothing was found.
   if (deep && found.size === 0) {
-    const rendered = await renderPage(base);
-    if (rendered && rendered.html) {
-      addPage(rendered);
-      if (!hasDomainEmail()) {
-        const contact = Core.findContactLinks(rendered.html, rendered.url, 1)[0];
-        if (contact && !visited.has(contact)) {
-          const r2 = await renderPage(contact);
-          if (r2 && r2.html) addPage(r2);
-        }
-      }
+    const rendered = await renderPage(start);
+    addPage(rendered);
+    if (rendered && rendered.html && found.size === 0) {
+      const contact = Core.findContactLinks(rendered.html, rendered.url, 1)[0];
+      if (contact) addPage(await renderPage(contact));
     }
   }
+  return finish();
 
-  const emails = Core.rankEmails(Array.from(found.values()), host);
-  return {
-    emails,
-    bestEmail: emails[0] || '',
-    socials,
-    error: loadedAny ? '' : 'Website did not load',
-  };
+  function finish() {
+    const emails = Core.rankEmails(Array.from(found.values()), host);
+    return { emails, bestEmail: emails[0] || '', socials, error: loadedAny ? '' : 'Website did not load' };
+  }
 }
 
 // ---------- wiring ----------

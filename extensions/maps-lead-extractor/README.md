@@ -61,6 +61,15 @@ Google Business Profiles do not show emails. The extension visits each business 
 - Ranks results. An email on the business's own domain ranks first, then Gmail/Outlook-style addresses, then the rest. No-reply addresses rank last. Junk like Sentry IDs, image names and `your@email.com` gets dropped.
 - If a site shows no email in its HTML, the extension renders it in a minimized window, so sites built with JavaScript work too. Turn this off in Settings if you prefer.
 
+Speed:
+
+- 6 websites get checked at the same time.
+- A site's contact and about pages load together. The rest stop as soon as one shows the business email.
+- Each page gets 6 seconds. Each site gets 15 seconds for its normal pages.
+- Dead or hanging sites get skipped after one failed load.
+- Up to 2 JavaScript sites render at once. Each window closes as soon as an email appears.
+- Businesses on the same domain, such as chain locations, share one check.
+
 The CSV "Email Status" column shows one of: Found, Not found, No website, Website error, Pending.
 
 ## Settings
@@ -83,7 +92,7 @@ If Google shows a verification check, the run pauses. Solve it in the tab, then 
 
 ## Speed
 
-About 3 to 5 seconds per business with default settings. A list of 120 takes 6 to 10 minutes. Email checks run in parallel, 3 at a time.
+About 3 to 5 seconds per business with default settings. A list of 120 takes 6 to 10 minutes. Email checks run alongside, 6 sites at a time, and finish within seconds of the last business. For the fastest emails, turn off "Render JavaScript websites" in Settings. You lose emails from sites built with JavaScript.
 
 ## Permissions
 
@@ -97,6 +106,7 @@ From the repo root:
 ```
 node --test extensions/maps-lead-extractor-tests/core.test.js
 node extensions/maps-lead-extractor-tests/e2e.mjs
+node extensions/maps-lead-extractor-tests/email-bench.mjs
 ```
 
 The end-to-end test loads the extension in Chromium against a mock Google Maps page and mock business websites. It needs Playwright installed.
