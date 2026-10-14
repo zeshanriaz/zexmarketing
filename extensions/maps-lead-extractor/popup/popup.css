@@ -1,0 +1,56 @@
+body {
+  width: 280px;
+  margin: 0;
+  padding: 14px;
+  font-family: Roboto, Arial, sans-serif;
+  font-size: 13px;
+  color: #1f2933;
+  border-top: 5px solid #0b6bcb;
+}
+h1 {
+  font-size: 15px;
+  margin: 0 0 10px;
+}
+.stats {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.stats div {
+  flex: 1;
+  background: #f5f8fc;
+  border-radius: 6px;
+  padding: 6px;
+  text-align: center;
+}
+.stats b {
+  display: block;
+  font-size: 16px;
+}
+.stats span {
+  font-size: 11px;
+  color: #7b8794;
+}
+button {
+  width: 100%;
+  margin-top: 6px;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #0b6bcb;
+  background: #0b6bcb;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+button.secondary {
+  background: #fff;
+  color: #0b6bcb;
+}
+.hint {
+  color: #7b8794;
+  font-size: 11px;
+}
+#msg {
+  min-height: 14px;
+  margin: 8px 0 0;
+}

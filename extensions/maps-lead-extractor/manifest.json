@@ -1,0 +1,47 @@
+{
+  "manifest_version": 3,
+  "name": "ZexLeads Maps Extractor",
+  "version": "1.0.0",
+  "description": "Extract Google Business Profile leads (name, phone, address, website, rating, reviews, email, category) from Google Maps to CSV.",
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "action": {
+    "default_title": "ZexLeads Maps Extractor",
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.google.com/maps*",
+        "https://www.google.co.uk/maps*",
+        "https://www.google.ca/maps*",
+        "https://www.google.com.au/maps*",
+        "https://www.google.co.in/maps*",
+        "https://www.google.ie/maps*",
+        "https://www.google.co.nz/maps*",
+        "https://www.google.com.pk/maps*",
+        "https://www.google.ae/maps*",
+        "https://www.google.de/maps*",
+        "https://www.google.fr/maps*",
+        "https://www.google.es/maps*",
+        "https://www.google.it/maps*",
+        "https://www.google.nl/maps*"
+      ],
+      "js": ["shared/leads-core.js", "content/maps-dom.js", "content/runner.js", "content/panel.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "permissions": ["storage", "unlimitedStorage", "scripting"],
+  "host_permissions": ["<all_urls>"]
+}

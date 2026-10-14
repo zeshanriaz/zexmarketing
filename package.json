@@ -1,14 +1,16 @@
 {
   "name": "zexmarketing",
   "version": "1.0.0",
-  "description": "ZexMarketing — SEO services website with a built-in CMS control panel.",
+  "description": "ZexMarketing \u2014 SEO services website with a built-in CMS control panel.",
   "main": "server.js",
   "type": "commonjs",
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
     "init-db": "node seed.js",
-    "reset-db": "node seed.js --reset"
+    "reset-db": "node seed.js --reset",
+    "test:extension": "node --test extensions/maps-lead-extractor-tests/core.test.js",
+    "test:extension:e2e": "node extensions/maps-lead-extractor-tests/e2e.mjs"
   },
   "engines": {
     "node": ">=18"

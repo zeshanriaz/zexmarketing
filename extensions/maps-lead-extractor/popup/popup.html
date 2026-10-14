@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>ZexLeads Maps Extractor</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <h1>ZexLeads Maps Extractor</h1>
+    <div class="stats">
+      <div><b id="saved">0</b><span>Businesses</span></div>
+      <div><b id="emails">0</b><span>Emails</span></div>
+      <div><b id="pending">0</b><span>Checks left</span></div>
+    </div>
+    <button id="open">Open Google Maps</button>
+    <button id="export" class="secondary">Export CSV</button>
+    <p id="msg"></p>
+    <p class="hint">Search on Google Maps, then use the panel on the right side of the map.</p>
+    <script src="../shared/leads-core.js"></script>
+    <script src="popup.js"></script>
+  </body>
+</html>
